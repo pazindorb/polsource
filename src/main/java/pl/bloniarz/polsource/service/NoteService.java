@@ -6,9 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 import pl.bloniarz.polsource.model.dao.NoteEntity;
 import pl.bloniarz.polsource.model.dao.NoteVersionEntity;
-import pl.bloniarz.polsource.model.dto.ContentEditRequest;
-import pl.bloniarz.polsource.model.dto.NoteRequest;
-import pl.bloniarz.polsource.model.dto.NoteResponse;
+import pl.bloniarz.polsource.model.dto.*;
 import pl.bloniarz.polsource.model.exceptions.AppException;
 import pl.bloniarz.polsource.model.exceptions.AppExceptionMessage;
 import pl.bloniarz.polsource.repository.NoteRepository;
@@ -53,9 +51,7 @@ public class NoteService {
 
     @Transactional
     public NoteEntity editNote(ContentEditRequest contentEditRequest, long id) {
-        NoteEntity noteEntity = noteRepository.findById(id).orElseThrow(
-                () -> new AppException(AppExceptionMessage.NOTE_NOT_FOUND,Long.toString(id))
-        );
+        NoteEntity noteEntity = findNoteByIdOrThrowException(id);
         List<NoteVersionEntity> noteVersionEntityList = noteEntity.getVersions();
         noteVersionEntityList.add(NoteVersionEntity.builder()
                 .content(contentEditRequest.getContent())
@@ -70,13 +66,56 @@ public class NoteService {
 
     @Transactional
     public List<NoteResponse> getAllNotes() {
-         return noteRepository.findAll().stream()
-                .map(note -> NoteResponse.builder()
-                        .title(note.getTitle())
-                        .content(note.getNewestContent().getContent())
-                        .created(note.getCreated())
-                        .modified(note.getNewestContent().getModified())
-                        .build())
+         return noteRepository.findAllByActive(true).stream()
+                .map(this::parseNoteEntityToNoteResponse)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public NoteResponse getNote(long id) {
+        return parseNoteEntityToNoteResponse(findNoteByIdOrThrowException(id));
+    }
+
+    @Transactional
+    public NoteHistoryResponse getNoteHistory(long id) {
+        NoteEntity noteEntity = noteRepository.findById(id).orElseThrow(
+                () -> new AppException(AppExceptionMessage.NOTE_NOT_FOUND,Long.toString(id))
+        );
+        return NoteHistoryResponse.builder()
+                .title(noteEntity.getTitle())
+                .created(noteEntity.getCreated())
+                .noteVersionList(noteEntity.getVersions().stream()
+                        .map(note -> NoteVersion.builder()
+                                .version(note.getVersionNumber())
+                                .content(note.getContent())
+                                .modified(note.getModified())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
+
+    @Transactional
+    public NoteEntity deleteNote(long id) {
+        NoteEntity noteEntity = findNoteByIdOrThrowException(id);
+        noteEntity.setActive(false);
+        return noteEntity;
+    }
+
+    private NoteEntity findNoteByIdOrThrowException(long id) {
+        return noteRepository.findByIdAndActive(id, true).orElseThrow(
+                () -> new AppException(AppExceptionMessage.NOTE_NOT_FOUND,Long.toString(id))
+        );
+    }
+
+    private NoteResponse parseNoteEntityToNoteResponse(NoteEntity note) {
+        return NoteResponse.builder()
+                .title(note.getTitle())
+                .content(note.getNewestContent().getContent())
+                .created(note.getCreated())
+                .modified(note.getNewestContent().getModified())
+                .build();
+    }
+
 }
