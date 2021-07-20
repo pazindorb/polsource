@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum AppExceptionMessage {
     NOTE_NOT_FOUND("Note with id: %s not found", 404);
 
-
     ;
     final String message;
     final int status;
