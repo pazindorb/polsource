@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class NoteController {
 
     private final NoteService noteService;
@@ -44,7 +45,7 @@ public class NoteController {
         return noteService.getNote(id);
     }
 
-    @GetMapping("/history/{id}")
+    @GetMapping("/{id}/history")
     @ResponseStatus(HttpStatus.OK)
     public NoteHistoryResponse getNoteHistory(@PathVariable long id){
         return noteService.getNoteHistory(id);
