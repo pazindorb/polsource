@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pl.bloniarz.polsource.PolsourceApplication;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 
 //@WebMvcTest(NoteController.class)
@@ -84,7 +85,34 @@ class NoteControllerIT {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/notes/998"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 
+    @Test
+    void shouldReturnBadRequestWhenRetrievingNotExistingNote() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/notes/99999"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("Note with id: 99999 not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingNotExistingNote() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/notes/99999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\" : \"\", \"content\":\"edit\"}"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("Note with id: 99999 not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenGetHistoryForExistingNote() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/notes/99999/history")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\" : \"\", \"content\":\"edit\"}"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("Note with id: 99999 not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
     }
 
 
