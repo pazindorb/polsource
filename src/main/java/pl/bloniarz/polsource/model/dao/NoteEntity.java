@@ -24,9 +24,4 @@ public class NoteEntity {
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<NoteVersionEntity> versions;
 
-    public NoteVersionEntity getNewestContent(){
-        return versions.stream()
-                .reduce((x,y) -> x.getVersionNumber() > y.getVersionNumber() ? x : y)
-                .get();
-    }
 }

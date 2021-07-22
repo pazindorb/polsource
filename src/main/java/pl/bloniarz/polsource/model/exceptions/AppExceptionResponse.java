@@ -1,11 +1,12 @@
 package pl.bloniarz.polsource.model.exceptions;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Data
+@Getter
 public class AppExceptionResponse {
 
     private final String message;

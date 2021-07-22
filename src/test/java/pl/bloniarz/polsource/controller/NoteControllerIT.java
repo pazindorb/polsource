@@ -1,20 +1,16 @@
 package pl.bloniarz.polsource.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import pl.bloniarz.polsource.PolsourceApplication;
-import pl.bloniarz.polsource.model.dto.NoteResponse;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -56,8 +52,8 @@ class NoteControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/notes"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content", equalTo("Content of first note")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", equalTo("Content of second note v2")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content", equalTo("Content of second note v2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", equalTo("Content of first note")));
     }
 
     @Test
@@ -79,7 +75,7 @@ class NoteControllerIT {
     }
 
     @Test
-    void shouldDeleteNoteFromDatabase() throws Exception{
+    void shouldDeleteNoteFromDatabase() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/notes/998"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -90,7 +86,6 @@ class NoteControllerIT {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
 
     }
-
 
 
 }
