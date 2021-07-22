@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 
-//@WebMvcTest(NoteController.class)
 @SpringBootTest(classes = PolsourceApplication.class)
 @RequiredArgsConstructor
 @AutoConfigureMockMvc
@@ -41,10 +40,10 @@ class NoteControllerIT {
     void shouldEditNoteAndReturnEditedOne() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/notes/998")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\" : \"\", \"content\":\"edit\"}"))
+                .content("{\"title\" : \"new\", \"content\":\"edit\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", equalTo("Second Note")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", equalTo("new")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content", equalTo("edit")));
     }
 
@@ -54,7 +53,9 @@ class NoteControllerIT {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].content", equalTo("Content of second note v2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", equalTo("Content of first note")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", equalTo("Content of first note")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title", equalTo("Second Note")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].title", equalTo("First Note")));
     }
 
     @Test
@@ -92,6 +93,26 @@ class NoteControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/notes/99999"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("Note with id: 99999 not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingWithNoChanges() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/notes/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\" : \"First Note\", \"content\":\"Content of first note\"}"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("There is nothing to edit")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingWithEmptyFields() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/notes/999")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\" : \"\", \"content\":\"\"}"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", equalTo("There is nothing to edit")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.errorTime", notNullValue()));
     }
 
