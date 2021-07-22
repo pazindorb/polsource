@@ -15,6 +15,7 @@ public class NoteVersion {
 
     private String content;
     private int version;
+    private String title;
     private LocalDateTime modified;
 
 }

@@ -41,46 +41,46 @@ class NoteServiceIT {
 
     @BeforeEach
     void setupDatabase(){
-        LocalDateTime now = LocalDateTime.now();
-
-        NoteEntity firstNote = noteRepository.save(
-                NoteEntity.builder()
-                        .title("First Note")
-                        .active(true)
-                        .created(now)
-                        .versions(new ArrayList<>())
-                        .build());
-        NoteVersionEntity firstNoteVersionEntity = versionRepository.save(
-                NoteVersionEntity.builder()
-                        .content("Content of First note")
-                        .modified(now)
-                        .note(firstNote)
-                        .versionNumber(1)
-                        .build());
-        firstNote.setVersions(Collections.singletonList(firstNoteVersionEntity));
-
-        NoteEntity secondNote = noteRepository.save(
-                NoteEntity.builder()
-                        .title("Second Note")
-                        .active(true)
-                        .created(now)
-                        .versions(new ArrayList<>())
-                        .build());
-        NoteVersionEntity secondNoteVersionEntityV1 = versionRepository.save(
-                NoteVersionEntity.builder()
-                        .content("Content of Second note version 1")
-                        .modified(now)
-                        .note(secondNote)
-                        .versionNumber(1)
-                        .build());
-        NoteVersionEntity secondNoteVersionEntityV2 = versionRepository.save(
-                NoteVersionEntity.builder()
-                        .content("Content of Second note version 2")
-                        .modified(now)
-                        .note(secondNote)
-                        .versionNumber(2)
-                        .build());
-        secondNote.setVersions(Arrays.asList(secondNoteVersionEntityV1, secondNoteVersionEntityV2));
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        NoteEntity firstNote = noteRepository.save(
+//                NoteEntity.builder()
+//                        .title("First Note")
+//                        .active(true)
+//                        .created(now)
+//                        .versions(new ArrayList<>())
+//                        .build());
+//        NoteVersionEntity firstNoteVersionEntity = versionRepository.save(
+//                NoteVersionEntity.builder()
+//                        .content("Content of First note")
+//                        .modified(now)
+//                        .note(firstNote)
+//                        .versionNumber(1)
+//                        .build());
+//        firstNote.setVersions(Collections.singletonList(firstNoteVersionEntity));
+//
+//        NoteEntity secondNote = noteRepository.save(
+//                NoteEntity.builder()
+//                        .title("Second Note")
+//                        .active(true)
+//                        .created(now)
+//                        .versions(new ArrayList<>())
+//                        .build());
+//        NoteVersionEntity secondNoteVersionEntityV1 = versionRepository.save(
+//                NoteVersionEntity.builder()
+//                        .content("Content of Second note version 1")
+//                        .modified(now)
+//                        .note(secondNote)
+//                        .versionNumber(1)
+//                        .build());
+//        NoteVersionEntity secondNoteVersionEntityV2 = versionRepository.save(
+//                NoteVersionEntity.builder()
+//                        .content("Content of Second note version 2")
+//                        .modified(now)
+//                        .note(secondNote)
+//                        .versionNumber(2)
+//                        .build());
+//        secondNote.setVersions(Arrays.asList(secondNoteVersionEntityV1, secondNoteVersionEntityV2));
     }
 
     @Test
@@ -99,7 +99,7 @@ class NoteServiceIT {
 
         //then
         assertEquals(3, noteEntity.getId());
-        assertEquals(title, noteEntity.getTitle());
+        assertEquals(title, noteEntity.getNewestContent().getTitle());
         assertEquals(content, noteEntity.getNewestContent().getContent());
         assertEquals(1, noteEntity.getNewestContent().getVersionNumber());
         assertTrue(noteEntity.isActive());
@@ -120,7 +120,7 @@ class NoteServiceIT {
 
         //then
         assertEquals(id, noteEntity.getId());
-        assertEquals("First Note", noteEntity.getTitle());
+        assertEquals("First Note", noteEntity.getNewestContent().getTitle());
         assertEquals(content, noteEntity.getNewestContent().getContent());
         assertEquals(2, noteEntity.getNewestContent().getVersionNumber());
     }

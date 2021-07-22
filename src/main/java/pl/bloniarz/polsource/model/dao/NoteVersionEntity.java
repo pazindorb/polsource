@@ -18,6 +18,7 @@ public class NoteVersionEntity {
     @Column(name = "version_id")
     private long id;
 
+    private String title;
     private String content;
     private LocalDateTime modified;
     private int versionNumber;

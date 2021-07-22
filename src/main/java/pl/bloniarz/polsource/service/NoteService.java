@@ -3,7 +3,6 @@ package pl.bloniarz.polsource.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 import pl.bloniarz.polsource.model.dao.NoteEntity;
 import pl.bloniarz.polsource.model.dao.NoteVersionEntity;
 import pl.bloniarz.polsource.model.dto.*;
@@ -30,7 +29,6 @@ public class NoteService {
 
         NoteEntity noteEntity = noteRepository.save(
                 NoteEntity.builder()
-                        .title(noteRequest.getTitle())
                         .active(true)
                         .created(now)
                         .versions(new ArrayList<>())
@@ -40,6 +38,7 @@ public class NoteService {
                 NoteVersionEntity.builder()
                         .content(noteRequest.getContent())
                         .modified(now)
+                        .title(noteRequest.getTitle())
                         .note(noteEntity)
                         .versionNumber(1)
                         .build());
@@ -66,8 +65,8 @@ public class NoteService {
 
     @Transactional
     public List<NoteResponse> getAllNotes() {
-         return noteRepository.findAllByActive(true).stream()
-                .map(this::parseNoteEntityToNoteResponse)
+        return noteRepository.findAllActiveNewestNotes().stream()
+                .map(this::convertRawTutleToNoteResponse)
                 .collect(Collectors.toList());
     }
 
@@ -82,13 +81,13 @@ public class NoteService {
                 () -> new AppException(AppExceptionMessage.NOTE_NOT_FOUND,Long.toString(id))
         );
         return NoteHistoryResponse.builder()
-                .title(noteEntity.getTitle())
                 .created(noteEntity.getCreated())
                 .noteVersionList(noteEntity.getVersions().stream()
                         .map(note -> NoteVersion.builder()
                                 .version(note.getVersionNumber())
                                 .content(note.getContent())
                                 .modified(note.getModified())
+                                .title(note.getTitle())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
@@ -109,10 +108,20 @@ public class NoteService {
         );
     }
 
+    private NoteResponse convertRawTutleToNoteResponse(Object[] tuple) {
+        return NoteResponse.builder()
+                .created((LocalDateTime) tuple[2])
+                .modified((LocalDateTime)tuple[3])
+                .title((String) tuple[4])
+                .content((String) tuple[5])
+                .build();
+    }
+
+
     private NoteResponse parseNoteEntityToNoteResponse(NoteEntity note) {
         return NoteResponse.builder()
-                .title(note.getTitle())
                 .content(note.getNewestContent().getContent())
+                .title(note.getNewestContent().getTitle())
                 .created(note.getCreated())
                 .modified(note.getNewestContent().getModified())
                 .build();

@@ -14,7 +14,6 @@ import java.util.List;
 @Data
 public class NoteHistoryResponse {
 
-    private String title;
     private LocalDateTime created;
     private List<NoteVersion> noteVersionList;
 

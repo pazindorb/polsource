@@ -18,8 +18,6 @@ public class NoteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "note_id")
     private long id;
-
-    private String title;
     private LocalDateTime created;
     private boolean active;
 

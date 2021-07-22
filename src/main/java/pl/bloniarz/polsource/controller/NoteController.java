@@ -22,15 +22,15 @@ public class NoteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SimpleResponse createNote(@Valid @RequestBody NoteRequest noteRequest){
-        String title = noteService.createNote(noteRequest).getTitle();
-        return new SimpleResponse(String.format("Created note with title: %s.", title));
+        NoteEntity note = noteService.createNote(noteRequest);
+        return new SimpleResponse(String.format("Created note with title: %s.", note.getNewestContent().getTitle()));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SimpleResponse createNote(@Valid @RequestBody ContentEditRequest contentEditRequest, @PathVariable long id){
-        String title = noteService.editNote(contentEditRequest, id).getTitle();
-        return new SimpleResponse(String.format("Edited note with title: %s.", title));
+    public SimpleResponse updateNote(@Valid @RequestBody ContentEditRequest contentEditRequest, @PathVariable long id){
+        NoteEntity note = noteService.editNote(contentEditRequest, id);
+        return new SimpleResponse(String.format("Edited note with title: %s.", note.getNewestContent().getTitle()));
     }
 
     @GetMapping
@@ -54,8 +54,8 @@ public class NoteController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public SimpleResponse deleteNote(@PathVariable long id){
-        String title = noteService.deleteNote(id).getTitle();
-        return new SimpleResponse(String.format("Note with title: %s, succesfully removed.", title));
+        NoteEntity noteEntity = noteService.deleteNote(id);
+        return new SimpleResponse(String.format("Note with title: %s, succesfully removed.", noteEntity.getNewestContent().getTitle()));
     }
 
 }
