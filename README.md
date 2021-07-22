@@ -5,12 +5,12 @@
 - Maven
 
 ### How to setup database
-- Database will be populated with data on start of the server
-- Uses h2 in memory database, lives only during program running
+- database will be populated with data on start of the server
+- uses h2 in memory database, lives only during program running
 
 ### How to run server
 1. call ```mvn clean install``` in main project directory (pom.xml file inside)
-2. Run using command ```java -jar target/polsource-0.0.1-SNAPSHOT.jar``` or using IDE
+2. run using command ```java -jar target/polsource-0.0.1-SNAPSHOT.jar``` or using IDE
 3. server by default starts on port 8080
 
 ## Example usages for Postman
