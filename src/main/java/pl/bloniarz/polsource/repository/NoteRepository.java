@@ -16,10 +16,11 @@ public interface NoteRepository extends JpaRepository<NoteEntity, Long> {
     @Query("select distinct n.id, n.active, n.created, v.modified, v.title, v.content, v.versionNumber " +
             "from NoteEntity n " +
             "         left join NoteVersionEntity v " +
-            "                   on n.id = v.id " +
+            "                   on n.id = v.note.id " +
             "         inner join NoteVersionEntity v2 " +
             "                    on v.versionNumber = " +
-            "                       (select max(v.versionNumber) from NoteVersionEntity v where v.id = n.id)")
+            "                       (select max(v.versionNumber) from NoteVersionEntity v where v.note.id = n.id) " +
+            "                    where n.active = true")
     List<Object[]> findAllActiveNewestNotes();
 
 }

@@ -2,9 +2,7 @@ package pl.bloniarz.polsource.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import pl.bloniarz.polsource.model.dao.NoteEntity;
 import pl.bloniarz.polsource.model.dto.*;
 import pl.bloniarz.polsource.service.NoteService;
 
@@ -21,16 +19,14 @@ public class NoteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SimpleResponse createNote(@Valid @RequestBody NoteRequest noteRequest){
-        NoteEntity note = noteService.createNote(noteRequest);
-        return new SimpleResponse(String.format("Created note with title: %s.", note.getNewestContent().getTitle()));
+    public NoteResponse createNote(@Valid @RequestBody NoteRequest noteRequest){
+        return noteService.createNote(noteRequest);
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SimpleResponse updateNote(@Valid @RequestBody ContentEditRequest contentEditRequest, @PathVariable long id){
-        NoteEntity note = noteService.editNote(contentEditRequest, id);
-        return new SimpleResponse(String.format("Edited note with title: %s.", note.getNewestContent().getTitle()));
+    public NoteResponse editNote(@RequestBody NoteEditRequest editedNote, @PathVariable long id){
+        return noteService.editNote(editedNote, id);
     }
 
     @GetMapping
@@ -53,9 +49,8 @@ public class NoteController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SimpleResponse deleteNote(@PathVariable long id){
-        NoteEntity noteEntity = noteService.deleteNote(id);
-        return new SimpleResponse(String.format("Note with title: %s, succesfully removed.", noteEntity.getNewestContent().getTitle()));
+    public NoteResponse deleteNote(@PathVariable long id){
+        return noteService.deleteNote(id);
     }
 
 }

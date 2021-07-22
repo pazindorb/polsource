@@ -12,10 +12,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ContentEditRequest {
+public class NoteEditRequest {
 
-    @NotNull
-    @NotEmpty
+    String title;
     String content;
 
 }

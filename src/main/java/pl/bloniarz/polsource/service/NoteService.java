@@ -24,7 +24,7 @@ public class NoteService {
     private final NoteRepository noteRepository;
     private final NoteVersionRepository versionRepository;
 
-    public NoteEntity createNote(NoteRequest noteRequest) {
+    public NoteResponse createNote(NoteRequest noteRequest) {
         LocalDateTime now = LocalDateTime.now();
 
         NoteEntity noteEntity = noteRepository.save(
@@ -45,22 +45,34 @@ public class NoteService {
 
         noteEntity.setVersions(Collections.singletonList(noteVersionEntity));
 
-        return noteEntity;
+        return parseNoteEntityToNoteResponse(noteEntity);
     }
 
     @Transactional
-    public NoteEntity editNote(ContentEditRequest contentEditRequest, long id) {
+    public NoteResponse editNote(NoteEditRequest editedNote, long id) {
         NoteEntity noteEntity = findNoteByIdOrThrowException(id);
+        String newContent = noteEntity.getNewestContent().getContent();
+        String newTitle = noteEntity.getNewestContent().getTitle();
+        if(editedNote != null  && !editedNote.getContent().equals(""))
+            newContent = editedNote.getContent();
+        if(editedNote != null  && !editedNote.getTitle().equals(""))
+            newTitle = editedNote.getTitle();
+
+        if(noteEntity.getNewestContent().getContent().equals(newContent)
+                && noteEntity.getNewestContent().getTitle().equals(newTitle))
+            throw new AppException(AppExceptionMessage.NO_CHANGES);
+
         List<NoteVersionEntity> noteVersionEntityList = noteEntity.getVersions();
         noteVersionEntityList.add(NoteVersionEntity.builder()
-                .content(contentEditRequest.getContent())
+                .content(newContent)
+                .title(newTitle)
                 .modified(LocalDateTime.now())
                 .note(noteEntity)
                 .versionNumber(noteEntity.getNewestContent().getVersionNumber() + 1)
                 .build());
         noteEntity.setVersions(noteVersionEntityList);
 
-        return noteEntity;
+        return parseNoteEntityToNoteResponse(noteEntity);
     }
 
     @Transactional
@@ -96,10 +108,10 @@ public class NoteService {
 
 
     @Transactional
-    public NoteEntity deleteNote(long id) {
+    public NoteResponse deleteNote(long id) {
         NoteEntity noteEntity = findNoteByIdOrThrowException(id);
         noteEntity.setActive(false);
-        return noteEntity;
+        return parseNoteEntityToNoteResponse(noteEntity);
     }
 
     private NoteEntity findNoteByIdOrThrowException(long id) {

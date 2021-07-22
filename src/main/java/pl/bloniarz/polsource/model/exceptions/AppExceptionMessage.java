@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum AppExceptionMessage {
-    NOTE_NOT_FOUND("Note with id: %s not found", 404);
-
+    NOTE_NOT_FOUND("Note with id: %s not found", 404),
+    NO_CHANGES("There is nothing to edit", 400),
     ;
     final String message;
     final int status;
